@@ -14,43 +14,52 @@ import Queue
 import threading
 
 
-def parse_date(day_or_date, hour):
-    """Transform a variable date+hour format in normalized one.
 
-      eg. :  transform_date("2 août 12:51", "12:51")="2015/08/02 17:03"
-
-    :rtype : str
-    :param day_or_date: String representing whether "Aujourd'hui", "Hier", or a date with format "2 août 12:51"
-    :param hour: String representing the hour and minutes, eg "17:03"
-    :return: a datetime oject representing the date and time
-    """
-    if day_or_date == "Aujourd'hui":
-        day = date.today().strftime('%Y/%m/%d')
-    elif day_or_date == 'Hier':
-        day = (date.today() - timedelta(1)).strftime('%Y/%m/%d')
-    else:
-        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
-        day = datetime.strptime(day_or_date.encode('UTF-8') + " " + date.today().strftime('%Y'),
-                                "%d %B %Y").strftime("%Y/%m/%d")
-    return datetime.strptime(day + " " + hour, "%Y/%m/%d %H:%M")
 
 
 class Processor(object):
+
+    nb_ad_per_page = 35
     search = None
 
     def __init__(self, search):
         self.search = search
 
     @staticmethod
+    def parse_date(day_or_date, hour):
+        """Transform a variable date+hour format in normalized one.
+
+          eg. :  transform_date("2 août 12:51", "12:51")="2015/08/02 17:03"
+
+        :rtype : str
+        :param day_or_date: String representing whether "Aujourd'hui", "Hier", or a date with format "2 août 12:51"
+        :param hour: String representing the hour and minutes, eg "17:03"
+        :return: a datetime oject representing the date and time
+        """
+        if day_or_date == "Aujourd'hui":
+            day = date.today().strftime('%Y/%m/%d')
+        elif day_or_date == 'Hier':
+            day = (date.today() - timedelta(1)).strftime('%Y/%m/%d')
+        else:
+            locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+            day = datetime.strptime(day_or_date.encode('UTF-8') + ' ' + date.today().strftime('%Y'),
+                                    '%d %b %Y').strftime("%Y/%m/%d")
+        return datetime.strptime(day + " " + hour, "%Y/%m/%d %H:%M")
+
+    @staticmethod
     def extract_item_id(url):
-        """Return the ID of the matching item
+        """Return the ID of the matching item.
+        A regexp is used. If the regexp is not found, return None
 
         :type url: str
-        :param url: String representing the URL of an ad.
+        :param url: String representing the URL of an ad, or None if no ad ID has been found in the URL
         :rtype : str
         """
         m = re.search('/([0-9]+)\.htm', url)
-        return m.group(1)
+        if m is not None:
+            return m.group(1)
+        else:
+            return None
 
     def get_item_list_details_fast(self, item_list, q):
         for i in item_list:
@@ -96,6 +105,10 @@ class Processor(object):
     def get_item_list_from_page(self, page_number, q, stop_item=None):
         """
 
+
+        :param page_number:
+        :param q:
+        :param stop_item:
         :type q: Queue
         """
         logging.info("Thread {0} : Getting item list from page {1}".format(threading.currentThread(), str(page_number)))
@@ -108,7 +121,7 @@ class Processor(object):
             # TODO Traiter le cas si plusieurs items sont à la même date de publication, et qu'ils sont choisis
             #      comme stop item (transformer la comparaison de date en strict, et gerer ensuite ce cas avec
             #      une requete SQL pour savoir ceux déjà en base et ceux à inserer.
-            if stop_item is not None and current_item.publication_date <= stop_item.publication_date:
+            if stop_item is not None and current_item.publication_date < stop_item.publication_date:
                 logging.info(
                     "Thread {0} : Stop crawling : Found an item older or same as the stop item {1} : {2}".format(
                         threading.currentThread(), stop_item.item_id, current_item.item_id))
@@ -120,7 +133,7 @@ class Processor(object):
         q = Queue.Queue()
         item_list = []
         nb_thread = 5
-        nb_ad_per_page = 35
+
         logging.info("Running threads ...")
 
         for page_nb in range(1, max_page + 1, nb_thread):
@@ -141,9 +154,9 @@ class Processor(object):
             while not q.empty():
                 item_list.append(q.get())
 
-            if nb_item_in_queue < nb_thread * nb_ad_per_page:
+            if nb_item_in_queue < nb_thread * self.nb_ad_per_page:
                 logging.info("The queue is not full [{0}<{1}], we stop here".format(nb_item_in_queue,
-                                                                                    nb_thread * nb_ad_per_page))
+                                                                                    nb_thread * self.nb_ad_per_page))
                 break
 
         return item_list
@@ -156,7 +169,7 @@ class Processor(object):
         current_item_soup = current_item_with_url_soup.select('div.lbc')[0]
         # Parse date
         date_to_format = current_item_soup.select('div.date div')
-        publication_date = parse_date(date_to_format[0].get_text(), date_to_format[1].get_text())
+        publication_date = Processor.parse_date(date_to_format[0].get_text(), date_to_format[1].get_text())
         # Parse image
         main_pic_url = ""
         for pic_anchor in current_item_soup.select('div.image div.image-and-nb img'):
