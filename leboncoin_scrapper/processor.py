@@ -14,11 +14,7 @@ import Queue
 import threading
 
 
-
-
-
 class Processor(object):
-
     nb_ad_per_page = 35
     search = None
 
@@ -42,6 +38,12 @@ class Processor(object):
             day = (date.today() - timedelta(1)).strftime('%Y/%m/%d')
         else:
             locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+            # This is to parse correctly the abbreviated month with the weird formatting of the items list
+            rep={'oct':'oct.','Oct':'oct.','nov':'nov.','Nov':'nov.','sept':'sept.','Sept':'sept.','juil':'juil.','Juil':'juil.','févr':'févr.','Févr':'févr.','janv':'janv.','Janv':'janv.','déc':'déc.','Déc':'déc.'}
+            rep=dict((re.escape(k),v) for k,v in rep.iteritems())
+            pattern=re.compile("|".join(rep.keys()))
+            day_or_date=pattern.sub(lambda m: rep[re.escape(m.group(0))],day_or_date)
+
             day = datetime.strptime(day_or_date.encode('UTF-8') + ' ' + date.today().strftime('%Y'),
                                     '%d %b %Y').strftime("%Y/%m/%d")
         return datetime.strptime(day + " " + hour, "%Y/%m/%d %H:%M")

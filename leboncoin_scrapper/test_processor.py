@@ -40,15 +40,13 @@ class TestProcessor(TestCase):
         nb_page = 1
         l = p.get_item_list(stop_item=None, max_page=nb_page)
         self.assertIsNotNone(l)
-        stop_item = l[20]
 
+        stop_item = l[20]
         nb_page = 2
         l = p.get_item_list(stop_item=stop_item, max_page=nb_page)
         self.assertIsNotNone(l)
-        self.assertEquals(len(l), 20)
+        self.assertEquals(len(l), 21)
 
-
-class TestProcessor(TestCase):
     def test_parse_date(self):
         locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
         print (date.today().strftime('%e %b %Y'))
