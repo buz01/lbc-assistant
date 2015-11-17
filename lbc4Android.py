@@ -9,6 +9,9 @@ from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 
+from model.search import Search
+from service.processor import Processor
+
 Builder.load_string('''
 <Screen1>:
     BoxLayout:
@@ -96,14 +99,12 @@ class Screen1(Screen):
                    url="http://www.leboncoin.fr/vetements/offres/ile_de_france/occasions/?", )
         p = Processor(s)
         nb_page = 1
-        l = p.get_item_list(stop_item=None, max_page=nb_page)
-
-        item_list = get_item_list(self.last_refresh)
+        item_list = p.get_item_list_with_full_details_fast(stop_item=None, max_page=nb_page)
         self.item_list.clear_widgets()
         for i in item_list:
 
             # WHo many hours ago
-            item_datetime = datetime.strptime(i.publication_date, "%Y/%m/%d %H:%M")
+            item_datetime = i.publication_date
             date_diff = abs((datetime.now() - item_datetime).seconds) / 60.0
             if date_diff < 60:
                 formatted_time_ago = str(int(round(date_diff, 0))) + " min"
@@ -118,8 +119,8 @@ class Screen1(Screen):
 
             # Title
             formatted_title = i.title
-            if i.is_new:
-                formatted_title = '[color=#ffcc00]' + i.title + '[/color]'
+            # if i.is_new:
+            #     formatted_title = '[color=#ffcc00]' + i.title + '[/color]'
             i_title = ItemListButton(text=formatted_title, height='100sp', markup=True, size_hint=[1, 1])
             i_title.item = i
             i_title.bind(on_press=self.show_details)
@@ -152,7 +153,7 @@ class Screen1(Screen):
         """
 
         self.big_picture_list.clear_widgets()
-        i = get_full_details(instance.item)
+        i = instance.item
 
         for big_pic_url in i.big_pictures:
             big_pic = AsyncImage(source=big_pic_url, size_hint=[1, 1], allow_stretch=True)

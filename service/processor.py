@@ -73,6 +73,7 @@ class Processor(object):
         Get the item list and the entire items details by using several threads to speed up processing.
         First the list of items are retrieved by using multi threading.
         Then the list is processed ; a thread is processing a fixed number of items (5 by default).
+
         :param stop_item: optional. If specified, the publication date is used to retrieve only the items newer than
                           the stop item. If not specified, all the items are retrieved
         :param max_page: optional. The maximum number of pages to process. If not specified, this value is fixed to 25
@@ -124,7 +125,7 @@ class Processor(object):
             # TODO Traiter le cas si plusieurs items sont à la même date de publication, et qu'ils sont choisis
             #      comme stop item (transformer la comparaison de date en strict, et gerer ensuite ce cas avec
             #      une requete SQL pour savoir ceux déjà en base et ceux à inserer.
-            if stop_item is not None and current_item.publication_date < stop_item.publication_date:
+            if stop_item is not None and stop_item.publication_date is not None and current_item.publication_date < stop_item.publication_date:
                 logging.info(
                     "Thread {0} : Stop crawling : Found an item older or same as the stop item {1} : {2}".format(
                         threading.currentThread(), stop_item.item_id, current_item.item_id))
