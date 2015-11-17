@@ -17,7 +17,7 @@ class TestProcessor(TestCase):
         # Only digits (may evolve one day)
         self.assertIsNone(Processor.extract_item_id('http://www.leboncoin.fr/vetements/00488XXX3.htm'))
 
-    def test_get_item_list_1(self):
+    def test_get_item_list_with_page_number(self):
         """ Test the process to get 1 page """
         s = Search(search_id=999, label="Test Search",
                    url="http://www.leboncoin.fr/vetements/offres/ile_de_france/occasions/?", )
@@ -33,20 +33,20 @@ class TestProcessor(TestCase):
         self.assertIsNotNone(l)
         self.assertEquals(len(l), Processor.nb_ad_per_page * nb_page)
 
-    def test_get_item_list_2(self):
+    def test_get_item_list_with_stop_item(self):
         s = Search(search_id=999, label="Test Search",
                    url="http://www.leboncoin.fr/materiel_medical/offres/ile_de_france/occasions/?f=a&th=1&location=Blois%2041000")
         p = Processor(s)
-
         nb_page = 1
         l = p.get_item_list(stop_item=None, max_page=nb_page)
         self.assertIsNotNone(l)
 
-        stop_item = l[20]
+        stop_index_index = 1
+        stop_item = l[stop_index_index]
         nb_page = 2
         l = p.get_item_list(stop_item=stop_item, max_page=nb_page)
         self.assertIsNotNone(l)
-        self.assertEquals(len(l), 21)
+        self.assertEquals(len(l), stop_index_index + 1)
 
     def test_parse_date(self):
         locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
