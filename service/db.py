@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-from leboncoin_scrapper.item import Item
-from leboncoin_scrapper.processor import Processor
+from model.item import Item
+from service.processor import Processor
+import os
 
 __author__ = 'buzz'
 
 import sqlite3
-from search import Search
+from model.search import Search
 import logging
 import logging.config
 import datetime
 
 
 class DB(object):
-    DB_NAME = 'lbc.sqlite'
+    BASE_DIR ='/home/buzz/Documents/Python/PycharmProjects/lbc-assistant/'
+    DB_NAME = os.path.join(BASE_DIR,'database', 'lbc.sqlite')
 
     db_name = None
     db_version = None

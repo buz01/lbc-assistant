@@ -1,14 +1,13 @@
-from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.image import AsyncImage
-from leboncoin_scrapper.processor import Processor
-from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
-from datetime import datetime
 import collections
+from datetime import datetime
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import AsyncImage
+from kivy.uix.label import Label
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 Builder.load_string('''
 <Screen1>:
@@ -93,6 +92,12 @@ class Screen1(Screen):
         self.refresh_btn.text = 'Refresh (last refresh : ' + self.last_refresh.strftime('%d/%m/%Y %X')
 
     def get_details(self):
+        s = Search(search_id=999, label="Test Search",
+                   url="http://www.leboncoin.fr/vetements/offres/ile_de_france/occasions/?", )
+        p = Processor(s)
+        nb_page = 1
+        l = p.get_item_list(stop_item=None, max_page=nb_page)
+
         item_list = get_item_list(self.last_refresh)
         self.item_list.clear_widgets()
         for i in item_list:

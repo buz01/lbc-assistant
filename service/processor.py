@@ -8,12 +8,12 @@ import bs4
 import ast
 from datetime import datetime, date, timedelta
 import re
-from leboncoin_scrapper.item import Item
+from model.item import Item
 import locale
 import Queue
 import threading
 
-
+# TODO Passer de bs4 à pyquery pour une rapidité accrue (cf http://doda.co/7-python-libraries-you-should-know-about/)
 class Processor(object):
     nb_ad_per_page = 35
     search = None
@@ -38,6 +38,7 @@ class Processor(object):
             day = (date.today() - timedelta(1)).strftime('%Y/%m/%d')
         else:
             locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+            # TODO utiliser la librairie dateutil pour resoudre le souci : http://doda.co/7-python-libraries-you-should-know-about/
             # This is to parse correctly the abbreviated month with the weird formatting of the items list
             rep={'oct':'oct.','Oct':'oct.','nov':'nov.','Nov':'nov.','sept':'sept.','Sept':'sept.','juil':'juil.','Juil':'juil.','févr':'févr.','Févr':'févr.','janv':'janv.','Janv':'janv.','déc':'déc.','Déc':'déc.'}
             rep=dict((re.escape(k),v) for k,v in rep.iteritems())

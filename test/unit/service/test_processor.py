@@ -1,8 +1,9 @@
-from unittest import TestCase
-from processor import Processor
-from search import Search
-from datetime import datetime,date,timedelta
 import locale
+from datetime import datetime,date,timedelta
+from unittest import TestCase
+
+from model.search import Search
+from service.processor import Processor
 
 __author__ = 'buzz'
 

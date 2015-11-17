@@ -1,14 +1,15 @@
-from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.image import AsyncImage
-from leboncoin_scrapper.processor import get_item_list, get_full_details
-from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
-from datetime import datetime
 import collections
+from datetime import datetime
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import AsyncImage
+from kivy.uix.label import Label
+from kivy.uix.screenmanager import ScreenManager, Screen
+
+from service.processor import get_item_list, get_full_details
 
 Builder.load_string('''
 <Screen1>:

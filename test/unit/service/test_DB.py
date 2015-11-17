@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 __author__ = 'buzz'
-from leboncoin_scrapper.db import DB
+from service.db import DB
 
 
 class TestDB(TestCase):
